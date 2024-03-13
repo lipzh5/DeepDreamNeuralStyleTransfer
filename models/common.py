@@ -4,8 +4,31 @@
 import tensorflow as tf
 
 
-def retargeted_vgg(content_layers):
+def gram_matrix(input_tensor):
+	result = tf.linalg.einsum('bijc, bijd->bcd', input_tensor, input_tensor)
+	input_shape = tf.shape(input_tensor)
+	num_locations = tf.cast(input_shape[1]*input_shape[2], tf.float32)
+	return result/num_locations
+
+
+def gram_matrix_plain(input_tensor):
+	# remove batch dim
+	input_tensor = input_tensor[0]  # (H, W, C) , C is the channel size or #filters
+	vectorized_fea = tf.reshape(input_tensor, (tf.shape(input_tensor)[0], -1))
+	return tf.matmul(vectorized_fea, tf.transpose(vectorized_fea))
+
+
+def retargeted_vgg(target_layers):
 	vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
 	vgg.trainable = False   # we update input images not the weights of vgg model
-	outputs = [vgg.get_layer(name).output for name in content_layers]
+	outputs = [vgg.get_layer(name).output for name in target_layers]
 	return tf.keras.Model([vgg.input], outputs)
+
+
+if __name__ == "__main__":
+	from utilities import *
+	content_image = load_img('../assets/content_image.jpeg')
+	model = retargeted_vgg(['block1_conv1', 'block1_conv2'])
+	preprocessed = tf.keras.applications.vgg19.preprocess_input(content_image)
+	outputs = model(preprocessed)
+	print('outputs shape: ', type(outputs), type(outputs[0]), tf.shape(outputs[0]))

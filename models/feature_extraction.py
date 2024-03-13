@@ -10,12 +10,14 @@ class FeatureExtractionModel(tf.keras.models.Model):
 	def __init__(self, target_layers):
 		super().__init__()
 		self.vgg = retargeted_vgg(target_layers)
+		self.target_layers = target_layers
 
 	def call(self, inputs):
 		"""Expects float inputs in [0, 1]"""
 		inputs = inputs * 255.0
 		preprocessed = tf.keras.applications.vgg19.preprocess_input(inputs)
-		return self.vgg(preprocessed)
+		outputs = self.vgg(preprocessed)  # a list of tensors
+		return {name: val for name, val in zip(self.target_layers, outputs)}
 
 
 
