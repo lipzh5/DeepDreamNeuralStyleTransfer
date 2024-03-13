@@ -5,11 +5,11 @@ import tensorflow as tf
 from models.common import retargeted_vgg
 
 
-class ContentModel(tf.keras.models.Model):
-	def __init__(self, content_layers):
+class FeatureExtractionModel(tf.keras.models.Model):
+	"""Used to extract feature maps for target layers"""
+	def __init__(self, target_layers):
 		super().__init__()
-		self.vgg = retargeted_vgg(content_layers)
-		self.content_layers = content_layers
+		self.vgg = retargeted_vgg(target_layers)
 
 	def call(self, inputs):
 		"""Expects float inputs in [0, 1]"""
