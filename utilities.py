@@ -13,8 +13,8 @@ def plot_tensor_as_image(tensor, save_as=''):
 	if np.ndim(tensor) > 3:
 		assert tensor.shape[0] == 1
 		tensor = tensor[0]
+	plt.axis('off')
 	plt.imshow(tensor)
-	plt.show()
 	if save_as:
 		plt.savefig(save_as)
 
