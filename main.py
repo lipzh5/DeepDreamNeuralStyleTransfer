@@ -40,7 +40,6 @@ def run_content_reconstruction(content_layers):
 
 
 if __name__ == "__main__":
-	print(tf.__version__)
 	# run_fast_style_transfer()
 	content_layers = ['block5_conv2']
 	run_content_reconstruction(content_layers)
