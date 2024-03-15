@@ -33,3 +33,15 @@ def content_style_loss(outputs, **kwargs):
 	style_loss = style_only_loss(outputs, target_style=target_style)
 	return content_weight * content_loss + style_weight * style_loss
 
+
+def dream_loss(image, feature_extraction_model):
+	image_batch = image[None, ...]  # or tf.expand_dims(image, axis=0)
+	layer_activations = feature_extraction_model(image_batch)
+	if len(layer_activations) == 1:
+		layer_activations = [layer_activations]
+	losses = []
+	for act in layer_activations:
+		loss = tf.math.reduce_mean(act)
+		losses.append(loss)
+	return tf.reduce_mean(losses)
+

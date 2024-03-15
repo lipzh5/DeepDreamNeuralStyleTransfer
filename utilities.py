@@ -8,42 +8,62 @@ import matplotlib.pyplot as plt
 import os
 
 
-def plot_tensor_as_image(tensor, save_as=''):
-	tensor = tensor * 255
-	tensor = np.array(tensor, dtype=np.uint8)
-	if np.ndim(tensor) > 3:
-		assert tensor.shape[0] == 1
-		tensor = tensor[0]
+def plot_array_as_image(nparray, save_as=''):
+	if np.ndim(nparray) > 3:
+		assert nparray.shape[0] == 1
+		nparray = nparray[0]
 	plt.figure(layout='tight')
 	plt.axis('off')
-	plt.imshow(tensor)
+	plt.imshow(nparray)
 	if save_as:
 		plt.savefig(save_as)
 
 
+def plot_tensor_as_image(tensor, save_as=''):
+	"""Exptects inputs in the range of [0,1]"""
+	tensor = tensor * 255
+	nparray = np.array(tensor, dtype=np.uint8)
+	plot_array_as_image(nparray, save_as)
+
+
+def array_to_image(nparray):
+	if np.ndim(nparray) > 3:
+		assert nparray.shape[0] == 1
+		nparray = nparray[0]
+	return Image.fromarray(nparray)
+
+
 def tensor_to_image(tensor):
 	tensor = tensor * 255
-	tensor = np.array(tensor, dtype=np.uint8)
-	if np.ndim(tensor) > 3:
-		assert tensor.shape[0] == 1
-		tensor = tensor[0]
-	return Image.fromarray(tensor)# run_fast_style_transfer()
-	# print(tf.config.list_physical_devices('GPU'))
+	nparray = np.array(tensor, dtype=np.uint8)
+	return array_to_image(nparray)
+
+
+def deprocess(image):
+	"""Expects image in the range of [-1, 1]"""
+	# normalize an image
+	image = 255 * (image + 1.0)/2.0
+	return tf.cast(image, tf.uint8)
+
+
+def deprocess_tensor_to_image(tensor):
+	tensor = deprocess(tensor)
+	nparray = np.array(tensor)
+	return array_to_image(nparray)
 
 
 def load_img(path_to_img):
-	max_dim = 512
+	# max_dim = 512
 	img = tf.io.read_file(path_to_img)
 	img = tf.image.decode_image(img, channels=3)
 	img = tf.image.convert_image_dtype(img, tf.float32)
 
 	shape = tf.cast(tf.shape(img)[:-1], tf.float32)
 	long_dim = max(shape)
-	scale = max_dim / long_dim
+	# scale = max_dim / long_dim
+	# new_shape = tf.cast(shape * scale, tf.int32)
 
-	new_shape = tf.cast(shape * scale, tf.int32)
-
-	img = tf.image.resize(img, new_shape)
+	# img = tf.image.resize(img, new_shape)
 	img = img[tf.newaxis, :]
 	return img
 
