@@ -1,4 +1,5 @@
-tensorflow
+tensorflow[and-cuda]==2.4.0
+tensorflow_hub
 matplotlib
 Pillow
 numpy

@@ -16,10 +16,10 @@ class FeatureExtractionModel(tf.keras.models.Model):
 		"""Expects float inputs in [0, 1]"""
 		inputs = inputs * 255.0
 		preprocessed = tf.keras.applications.vgg19.preprocess_input(inputs)
-		outputs = self.vgg(preprocessed)  # a list of tensors
+		outputs = self.vgg(preprocessed)  # a list of tensors, but if only one tensor, will return that tensor directly
+		if len(self.target_layers) == 1:
+			return {self.target_layers[0]: outputs}
 		return {name: val for name, val in zip(self.target_layers, outputs)}
-
-
 
 
 if __name__ == "__main__":
