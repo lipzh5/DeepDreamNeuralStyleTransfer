@@ -15,12 +15,8 @@ tf.random.set_seed(231)
 content_image = load_img('assets/content_image.jpeg') # load_img('assets/MQ_fountain.jpg')
 style_image = load_img('assets/starry_night.jpg')
 # style_image = load_img('assets/Style-Vassily_Kandinsky.jpeg')
-dream_image = load_img('assets/Ameca.jpg')
+dream_image = load_img('assets/sky1024px.jpg')# load_img('assets/Ameca2.jpg')
 
-
-# hyperparameters
-style_weight = 1e-2
-content_weight = 1e4
 
 
 def run_fast_style_transfer():
@@ -63,36 +59,37 @@ def run_style_reconstruction(style_layers, epochs=10, steps_per_epoch=100):
 def run_content_style_reconstruction(content_layers, style_layers, epochs=10, steps_per_epoch=100):
 	opt = get_optimizer()
 	# init from random
-	image = tf.Variable(tf.random.uniform(content_image.shape, dtype=tf.dtypes.float32))
+	# image = tf.Variable(tf.random.uniform(content_image.shape, dtype=tf.dtypes.float32))
+	image = tf.Variable(content_image)
 	model = ContentStyleModel(content_layers, style_layers)
-	# output1 = model(content_image)['content_outputs']
-	# print('target outputs', type(output1), output1.keys())
 	target_content_features = model(content_image)['content_outputs']
+	target_style_features = model(style_image)['style_outputs']
+	train_loop(model, image, content_style_loss, opt, epochs, steps_per_epoch, target_content=target_content_features, target_style=target_style_features)
+	# # # # show and save image
+	plot_tensor_as_image(image, save_as=f'outputs/content_style/{style_layers[-1]}.png')
 
-	# target_style_features = model(style_image)['style_outputs']
-	# train_loop(model, image, content_style_loss, opt, epochs, steps_per_epoch, target_content=target_content_features, target_style=target_style_features)
-	# # # show and save image
-	# plot_tensor_as_image(image, save_as=f'outputs/content_style/{style_layers[-1]}.png')
 
-
-def run_deepdream(layers, steps, step_size):
+def run_deepdream(layers, steps, step_size):  # TODO something wrong
 	dream_model = DeepDream(layers, dream_loss)
-	image = tf.keras.applications.vgg19.preprocess_input(dream_image)
+	image = tf.keras.applications.resnet50.preprocess_input(dream_image)
+	# image = tf.keras.applications.vgg16.preprocess_input(dream_image)
 	image = tf.convert_to_tensor(image)
+	print('iamge shape: ', image.shape)
 	step_size = tf.convert_to_tensor(step_size)
 	loss, image = dream_model(image, steps, step_size)
+	print('min value of image ', tf.reduce_min(image), 'max: ', tf.reduce_max(image))
+	print('----')
+	print('loss is: ', loss)
 	image = deprocess(image)
-	plot_array_as_image(np.array(image), save_as='outputs/deemdream/dream_Ameca.png')
-
-
-
-
-	pass
+	print('min value of image ', tf.reduce_min(image), 'max: ', tf.reduce_max(image))
+	plot_array_as_image(np.array(image), save_as=f'outputs/deepdream/resnet50/dream_sky_{layers[-1]}.png')
 
 
 
 
 if __name__ == "__main__":
+	# layers = ['conv4_block1_2_conv', 'conv4_block1_3_conv']# ['block5_conv3']
+	# run_deepdream(layers, steps=50, step_size=0.09)
 
 	# run_fast_style_transfer()
 	# print(tf.config.list_physical_devices('GPU'))
@@ -100,8 +97,9 @@ if __name__ == "__main__":
 					['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1',],
 					['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1', 'block5_conv1']]
 	# # for layers in style_layers:
-	run_style_reconstruction(style_layers[0], epochs=10)
+	# run_style_reconstruction(style_layers[0], epochs=10)
 
-	# content_layers = [['block1_conv2'], ['block2_conv2'], ['block3_conv2'], ['block4_conv2'], ['block5_conv2']]
+	content_layers = [['block1_conv2'], ['block2_conv2'], ['block3_conv2'], ['block4_conv2'], ['block5_conv2']]
 	# run_content_reconstruction(content_layers[4], epochs=10)
-	# run_content_style_reconstruction(content_layers[-1], style_layers[-1], epochs=2)
+	run_content_style_reconstruction(content_layers[-1], style_layers[-1], epochs=30)
+#
