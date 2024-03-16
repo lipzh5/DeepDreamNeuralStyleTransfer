@@ -14,9 +14,12 @@ tf.random.set_seed(231)
 
 content_image = load_img('assets/content_image.jpeg') # load_img('assets/MQ_fountain.jpg')
 style_image = load_img('assets/starry_night.jpg')
+dream_image = Image.open('assets/Ameca2.jpg') # Image.open('assets/sky1024px.jpg')
+max_dim = 500
+dream_image.thumbnail((max_dim, max_dim))
+dream_image = np.array(dream_image)
 # style_image = load_img('assets/Style-Vassily_Kandinsky.jpeg')
-dream_image = load_img('assets/sky1024px.jpg')# load_img('assets/Ameca2.jpg')
-
+# dream_image = load_img('assets/sky1024px.jpg', max_dim=500)# load_img('assets/Ameca2.jpg')
 
 
 def run_fast_style_transfer():
@@ -71,35 +74,51 @@ def run_content_style_reconstruction(content_layers, style_layers, epochs=10, st
 
 def run_deepdream(layers, steps, step_size):  # TODO something wrong
 	dream_model = DeepDream(layers, dream_loss)
-	image = tf.keras.applications.resnet50.preprocess_input(dream_image)
+	image = tf.keras.applications.inception_v3.preprocess_input(dream_image)
+	# image = tf.keras.applications.resnet50.preprocess_input(dream_image)
 	# image = tf.keras.applications.vgg16.preprocess_input(dream_image)
 	image = tf.convert_to_tensor(image)
-	print('iamge shape: ', image.shape)
-	step_size = tf.convert_to_tensor(step_size)
-	loss, image = dream_model(image, steps, step_size)
-	print('min value of image ', tf.reduce_min(image), 'max: ', tf.reduce_max(image))
-	print('----')
-	print('loss is: ', loss)
+	loss, image = dream_model(image, tf.constant(steps), tf.constant(step_size))
 	image = deprocess(image)
 	print('min value of image ', tf.reduce_min(image), 'max: ', tf.reduce_max(image))
-	plot_array_as_image(np.array(image), save_as=f'outputs/deepdream/resnet50/dream_sky_{layers[-1]}.png')
+	plot_array_as_image(np.array(image), save_as=f'outputs/deepdream/inception/dream_ameca_{layers[-1]}.png')
+
+
+# step_size = tf.convert_to_tensor(step_size)
+	# steps_remaining = steps
+	# step = 0
+	# while steps_remaining:
+	# 	if steps_remaining > 100:
+	# 		run_steps = tf.constant(100)
+	# 	else:
+	# 		run_steps = tf.constant(steps_remaining)
+	# 	steps_remaining -= run_steps
+	# 	step += run_steps
+	#
+	# 	loss, img = dream_model(dream_image, run_steps, tf.constant(step_size))
+	#
+	# 	print(f"Step {step}, loss {loss}")
+	# result = deprocess(img)
+	# display.clear_output(wait=True)
+	# show(result)
+	# return result
 
 
 
 
 if __name__ == "__main__":
-	# layers = ['conv4_block1_2_conv', 'conv4_block1_3_conv']# ['block5_conv3']
-	# run_deepdream(layers, steps=50, step_size=0.09)
+	layers = ['mixed3', 'mixed5']
+	run_deepdream(layers, steps=500, step_size=0.01)
 
 	# run_fast_style_transfer()
 	# print(tf.config.list_physical_devices('GPU'))
-	style_layers = [['block1_conv1',], ['block1_conv1', 'block2_conv1'], ['block1_conv1', 'block2_conv1', 'block3_conv1'],
-					['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1',],
-					['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1', 'block5_conv1']]
+	# style_layers = [['block1_conv1',], ['block1_conv1', 'block2_conv1'], ['block1_conv1', 'block2_conv1', 'block3_conv1'],
+	# 				['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1',],
+	# 				['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1', 'block5_conv1']]
 	# # for layers in style_layers:
 	# run_style_reconstruction(style_layers[0], epochs=10)
 
-	content_layers = [['block1_conv2'], ['block2_conv2'], ['block3_conv2'], ['block4_conv2'], ['block5_conv2']]
+	# content_layers = [['block1_conv2'], ['block2_conv2'], ['block3_conv2'], ['block4_conv2'], ['block5_conv2']]
 	# run_content_reconstruction(content_layers[4], epochs=10)
-	run_content_style_reconstruction(content_layers[-1], style_layers[-1], epochs=30)
+	# run_content_style_reconstruction(content_layers[-1], style_layers[-1], epochs=30)
 #

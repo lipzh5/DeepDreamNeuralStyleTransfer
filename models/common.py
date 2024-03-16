@@ -18,9 +18,8 @@ def gram_matrix_plain(input_tensor):
 	return tf.matmul(vectorized_fea, tf.transpose(vectorized_fea))
 
 
-def retargeted_vgg(target_layers, name='vgg19'):
-	vgg_model = tf.keras.applications.VGG19 if name == 'vgg19' else tf.keras.applications.VGG16
-	vgg = vgg_model(include_top=False, weights='imagenet')
+def retargeted_vgg(target_layers):
+	vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
 	vgg.trainable = False   # we update input images not the weights of vgg model
 	outputs = [vgg.get_layer(name).output for name in target_layers]
 	return tf.keras.Model([vgg.input], outputs)

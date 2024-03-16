@@ -17,7 +17,7 @@ def content_only_loss(outputs: dict, **kwargs):
 	return loss / len(outputs)
 
 
-def style_only_loss(outputs, **kwargs):
+def style_only_loss(outputs: dict, **kwargs):
 	target_style = kwargs.get('target_style')
 	assert target_style is not None, 'should provide target style features!!!'
 	loss = tf.add_n([
@@ -25,7 +25,7 @@ def style_only_loss(outputs, **kwargs):
 	return loss / len(outputs)
 
 
-def content_style_loss(outputs, **kwargs):
+def content_style_loss(outputs: dict, **kwargs):
 	target_content = kwargs.get('target_content')
 	target_style = kwargs.get('target_style')
 	assert target_content is not None, 'should provide target content features!!!'
@@ -36,13 +36,9 @@ def content_style_loss(outputs, **kwargs):
 
 
 def dream_loss(image, feature_extraction_model):
-	# image_batch = image[None, ...]  # or tf.expand_dims(image, axis=0)
-	layer_activations = feature_extraction_model(image)
+	image_batch = image[None, ...]  # or tf.expand_dims(image, axis=0)
+	layer_activations = feature_extraction_model(image_batch)
 	if len(layer_activations) == 1:
 		layer_activations = [layer_activations]
-	losses = []
-	for act in layer_activations:
-		loss = tf.math.reduce_mean(act)
-		losses.append(loss)
+	losses = [tf.math.reduce_mean(act) for act in layer_activations]
 	return tf.reduce_mean(losses)
-
