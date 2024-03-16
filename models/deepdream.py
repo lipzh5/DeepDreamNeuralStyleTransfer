@@ -24,7 +24,6 @@ class DeepDream(tf.Module):
 			gradients /= tf.math.reduce_std(gradients) + 1e-8
 			image = image + gradients * step_size
 			image = tf.clip_by_value(image, -1, 1)
-			print(f'step: {n}, loss:{loss}')
 		return loss, image
 
 
