@@ -12,8 +12,8 @@ def gram_matrix(input_tensor):
 
 
 def gram_matrix_plain(input_tensor):
-	# remove batch dim
 	input_tensor = input_tensor[0]  # (H, W, C) , C is the channel size or #filters
+	input_tensor = tf.transpose(input_tensor, (2, 0, 1))
 	vectorized_fea = tf.reshape(input_tensor, (tf.shape(input_tensor)[0], -1))
 	return tf.matmul(vectorized_fea, tf.transpose(vectorized_fea))
 
