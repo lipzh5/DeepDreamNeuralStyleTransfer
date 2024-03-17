@@ -72,7 +72,7 @@ def run_content_style_reconstruction(content_layers, style_layers, epochs=10, st
 	plot_tensor_as_image(image, save_as=f'outputs/content_style/{style_layers[-1]}.png')
 
 
-def run_deepdream(layers, steps, step_size):  # TODO something wrong
+def run_deepdream(layers, steps, step_size):
 	dream_model = DeepDream(layers, dream_loss)
 	image = tf.keras.applications.inception_v3.preprocess_input(dream_image)
 	# image = tf.keras.applications.resnet50.preprocess_input(dream_image)
@@ -107,16 +107,16 @@ def run_deepdream(layers, steps, step_size):  # TODO something wrong
 
 
 if __name__ == "__main__":
-	layers = ['mixed3', 'mixed5']
-	run_deepdream(layers, steps=500, step_size=0.01)
+	# layers = ['mixed3', 'mixed5']
+	# run_deepdream(layers, steps=1000, step_size=0.01)
 
 	# run_fast_style_transfer()
 	# print(tf.config.list_physical_devices('GPU'))
-	# style_layers = [['block1_conv1',], ['block1_conv1', 'block2_conv1'], ['block1_conv1', 'block2_conv1', 'block3_conv1'],
-	# 				['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1',],
-	# 				['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1', 'block5_conv1']]
+	style_layers = [['block1_conv1',], ['block1_conv1', 'block2_conv1'], ['block1_conv1', 'block2_conv1', 'block3_conv1'],
+					['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1',],
+					['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1', 'block5_conv1']]
 	# # for layers in style_layers:
-	# run_style_reconstruction(style_layers[0], epochs=10)
+	run_style_reconstruction(style_layers[-1], epochs=10)
 
 	# content_layers = [['block1_conv2'], ['block2_conv2'], ['block3_conv2'], ['block4_conv2'], ['block5_conv2']]
 	# run_content_reconstruction(content_layers[4], epochs=10)
